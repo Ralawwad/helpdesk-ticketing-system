@@ -1,5 +1,6 @@
 # AI-Powered IT Help Desk Ticketing System
 
+🔗 **Live Demo:** [https://helpdesk-ticketing-system-o8cd.onrender.com](https://helpdesk-ticketing-system-o8cd.onrender.com)
 ## Overview
 
 This project is a fully functional IT Help Desk Ticketing System built from scratch using Python and Flask. The system allows users to submit IT support tickets through a web interface, where an intelligent backend automatically categorizes each ticket by issue type, assigns a priority level based on the urgency of the request, and generates a suggested fix for the technician. Upon submission, the system produces an AI-generated support email addressed to the user confirming receipt of their ticket and providing an estimated resolution time. A live dashboard displays real-time statistics, interactive charts, and the full ticket queue with search and filter functionality. This project demonstrates practical Help Desk skills combined with Python development, web application design, and automated workflow logic.
