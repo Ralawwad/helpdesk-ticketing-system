@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Help Desk Ticketing System</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f0f2f5; }
+        .header { background: #1a73e8; color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { margin: 0; font-size: 24px; }
+        .btn { background: white; color: #1a73e8; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; text-decoration: none; }
+        .container { padding: 30px 40px; }
+        .stats { display: flex; gap: 20px; margin-bottom: 30px; flex-wrap: wrap; }
+        .stat-card { background: white; padding: 20px; border-radius: 8px; flex: 1; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); min-width: 150px; }
+        .stat-card h2 { margin: 0; font-size: 36px; color: #1a73e8; }
+        .stat-card p { margin: 5px 0 0; color: #666; font-size: 13px; }
+        .stat-card.high h2 { color: #d93025; }
+        .stat-card.resolved h2 { color: #34a853; }
+        .controls { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+        .controls input { padding: 10px 15px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; flex: 1; min-width: 200px; }
+        .controls select { padding: 10px 15px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; background: white; cursor: pointer; }
+        .ticket { background: white; padding: 20px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-left: 5px solid #1a73e8; }
+        .ticket.resolved { border-left-color: #34a853; opacity: 0.7; }
+        .ticket.high-priority { border-left-color: #d93025; }
+        .ticket-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
+        .ticket-id { font-weight: bold; color: #1a73e8; }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .badge-high { background: #fce8e6; color: #d93025; }
+        .badge-medium { background: #fef7e0; color: #f9ab00; }
+        .badge-low { background: #e6f4ea; color: #34a853; }
+        .badge-open { background: #e8f0fe; color: #1a73e8; }
+        .badge-resolved { background: #e6f4ea; color: #34a853; }
+        .category { background: #f1f3f4; padding: 3px 8px; border-radius: 4px; font-size: 12px; color: #444; }
+        .solution { background: #f8f9fa; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 14px; color: #555; }
+        .resolve-btn { background: #34a853; color: white; padding: 6px 14px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; font-size: 13px; }
+        .section-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; color: #333; }
+        .no-tickets { text-align: center; padding: 40px; color: #999; font-size: 16px; }
+        .category-breakdown { background: white; padding: 20px; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .category-breakdown h3 { margin: 0 0 15px; color: #333; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>IT Help Desk Ticketing System</h1>
+        <a href="/submit" class="btn">+ New Ticket</a>
+    </div>
+    <div class="container">
+        <div class="stats">
+            <div class="stat-card">
+                <h2>{{ tickets|length }}</h2>
+                <p>Total Tickets</p>
+            </div>
+            <div class="stat-card">
+                <h2>{{ tickets|selectattr('status', 'equalto', 'Open')|list|length }}</h2>
+                <p>Open Tickets</p>
+            </div>
+            <div class="stat-card resolved">
+                <h2>{{ tickets|selectattr('status', 'equalto', 'Resolved')|list|length }}</h2>
+                <p>Resolved Tickets</p>
+            </div>
+            <div class="stat-card high">
+                <h2>{{ tickets|selectattr('priority', 'equalto', 'High')|list|length }}</h2>
+                <p>High Priority</p>
+            </div>
+            <div class="stat-card">
+                <h2>{{ most_common_category }}</h2>
+                <p>Most Common Category</p>
+            </div>
+        </div>
+
+        <div class="category-breakdown">
+            <h3>Tickets by Category &amp; Priority</h3>
+            <div style="display: flex; gap: 30px; align-items: center; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 220px; max-width: 260px;">
+                    <canvas id="donutChart" height="220"></canvas>
+                </div>
+                <div style="flex: 2; min-width: 280px;">
+                    <canvas id="barChart" height="80"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <input type="text" id="searchInput" placeholder="Search tickets by name, issue, or email..." onkeyup="filterTickets()">
+            <select id="categoryFilter" onchange="filterTickets()">
+                <option value="">All Categories</option>
+                <option value="Network">Network</option>
+                <option value="Hardware">Hardware</option>
+                <option value="Software">Software</option>
+                <option value="Account Access">Account Access</option>
+                <option value="General">General</option>
+            </select>
+            <select id="priorityFilter" onchange="filterTickets()">
+                <option value="">All Priorities</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+            </select>
+            <select id="statusFilter" onchange="filterTickets()">
+                <option value="">All Statuses</option>
+                <option value="Open">Open</option>
+                <option value="Resolved">Resolved</option>
+            </select>
+        </div>
+
+        <div class="section-title">All Tickets</div>
+        <div id="ticketList">
+        {% for ticket in tickets|reverse %}
+        <div class="ticket {% if ticket.status == 'Resolved' %}resolved{% endif %} {% if ticket.priority == 'High' %}high-priority{% endif %}"
+             data-name="{{ ticket.name }}"
+             data-description="{{ ticket.description }}"
+             data-email="{{ ticket.email }}"
+             data-category="{{ ticket.category }}"
+             data-priority="{{ ticket.priority }}"
+             data-status="{{ ticket.status }}">
+            <div class="ticket-header">
+                <a href="/ticket/{{ ticket.id }}" class="ticket-id">#{{ ticket.id }} — {{ ticket.name }}</a>
+                <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                    <span class="category">{{ ticket.category }}</span>
+                    <span class="badge badge-{{ ticket.priority|lower }}">{{ ticket.priority }}</span>
+                    <span class="badge badge-{{ ticket.status|lower }}">{{ ticket.status }}</span>
+                    {% if ticket.status == 'Open' %}
+                    <a href="/resolve/{{ ticket.id }}" class="resolve-btn">Mark Resolved</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div>{{ ticket.description }}</div>
+            <div class="solution">💡 <strong>Suggested Fix:</strong> {{ ticket.solution }}</div>
+            <div style="font-size:12px; color:#999; margin-top:8px;">{{ ticket.created }} — {{ ticket.email }}</div>
+        </div>
+        {% endfor %}
+        </div>
+        <div id="noResults" class="no-tickets" style="display:none;">No tickets match your search.</div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script>
+        const categoryLabels = {{ category_counts.keys()|list|tojson }};
+        const categoryData = {{ category_counts.values()|list|tojson }};
+
+        new Chart(document.getElementById('donutChart'), {
+            type: 'doughnut',
+            data: {
+                labels: categoryLabels,
+                datasets: [{
+                    data: categoryData,
+                    backgroundColor: ['#1a73e8','#34a853','#f9ab00','#d93025','#9334e6'],
+                    borderWidth: 2
+                }]
+            },
+            options: { plugins: { legend: { position: 'bottom' } }, cutout: '65%' }
+        });
+
+        new Chart(document.getElementById('barChart'), {
+            type: 'bar',
+            data: {
+                labels: ['High', 'Medium', 'Low'],
+                datasets: [{
+                    label: 'Tickets by Priority',
+                    data: [
+                        {{ tickets|selectattr('priority','equalto','High')|list|length }},
+                        {{ tickets|selectattr('priority','equalto','Medium')|list|length }},
+                        {{ tickets|selectattr('priority','equalto','Low')|list|length }}
+                    ],
+                    backgroundColor: ['#d93025','#f9ab00','#34a853'],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+            }
+        });
+
+        function filterTickets() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const category = document.getElementById('categoryFilter').value;
+            const priority = document.getElementById('priorityFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            const tickets = document.querySelectorAll('.ticket');
+            let visible = 0;
+            tickets.forEach(ticket => {
+                const matchSearch = !search ||
+                    ticket.dataset.name.toLowerCase().includes(search) ||
+                    ticket.dataset.description.toLowerCase().includes(search) ||
+                    ticket.dataset.email.toLowerCase().includes(search);
+                const matchCategory = !category || ticket.dataset.category === category;
+                const matchPriority = !priority || ticket.dataset.priority === priority;
+                const matchStatus = !status || ticket.dataset.status === status;
+                if (matchSearch && matchCategory && matchPriority && matchStatus) {
+                    ticket.style.display = '';
+                    visible++;
+                } else {
+                    ticket.style.display = 'none';
+                }
+            });
+            document.getElementById('noResults').style.display = visible === 0 ? '' : 'none';
+        }
+    </script>
+</body>
+</html>

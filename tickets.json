@@ -1,0 +1,15 @@
+[
+  {
+    "id": 1,
+    "name": "Rayan Alawwad",
+    "email": "rayan@helpdesk.com",
+    "description": " I am locked out of my account and cannot login, my password is not working",
+    "category": "Account Access",
+    "priority": "Medium",
+    "solution": "Verify credentials, check if account is locked in Active Directory, reset password if needed.",
+    "status": "Open",
+    "created": "2026-03-09 03:42",
+    "resolved_at": null,
+    "auto_reply": "Hi Rayan Alawwad, thank you for contacting IT Support. We have received your account access ticket. Our team will verify your credentials and check Active Directory immediately. Expected resolution time: 30 minutes."
+  }
+]

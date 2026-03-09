@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit a Ticket</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f0f2f5; }
+        .header { background: #1a73e8; color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { margin: 0; font-size: 24px; }
+        .btn { background: white; color: #1a73e8; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; text-decoration: none; }
+        .container { padding: 40px; max-width: 600px; margin: 0 auto; }
+        .form-card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .form-card h2 { margin-top: 0; color: #333; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #444; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box; margin-bottom: 20px; }
+        textarea { height: 120px; resize: vertical; }
+        .submit-btn { background: #1a73e8; color: white; padding: 12px 30px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; width: 100%; }
+        .submit-btn:hover { background: #1557b0; }
+        .note { background: #e8f0fe; padding: 12px; border-radius: 5px; font-size: 13px; color: #1a73e8; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>IT Help Desk Ticketing System</h1>
+        <a href="/" class="btn">← Back to Dashboard</a>
+    </div>
+    <div class="container">
+        <div class="form-card">
+            <h2>Submit a New IT Ticket</h2>
+            <div class="note">🤖 Our system will automatically categorize your issue and suggest a solution.</div>
+            <form method="POST">
+                <label>Your Name</label>
+                <input type="text" name="name" placeholder="Enter your full name" required>
+                <label>Your Email</label>
+                <input type="email" name="email" placeholder="Enter your email address" required>
+                <label>Describe Your Issue</label>
+                <textarea name="description" placeholder="Describe your IT issue in detail. Example: My computer won't connect to the internet..." required></textarea>
+                <button type="submit" class="submit-btn">Submit Ticket</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: helpdesk-ticketing-system
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
